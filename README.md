@@ -1,0 +1,2 @@
+# pgBackup
+Backupscripts for PostgreSQL
