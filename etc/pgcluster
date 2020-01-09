@@ -1,0 +1,19 @@
+# PG-Installations
+# Data:Port:Binaries:Version:Type:Active Backup
+# 
+# Data:
+#  Root folder of PGDATA
+# Port:
+#  Port of the pg cluster
+# Binaries:
+#  Location of the PostgreSQL binaries
+# Version:
+#  Major version of postgresql
+# Type:
+#  Type of database: 1=Primary, 2=Standby, 3=Custom
+# Active Backup:
+#  IF Cluster should be backed up
+#  Values: 1=true, 0=false
+#
+# Example:
+# /u01/pgdata:5432:/u00/pgsql/12:12:1:1 
