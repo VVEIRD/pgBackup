@@ -44,7 +44,7 @@ for pgcString in pgcluster:
     # Delete local backup
     subprocess.call(['rm'] + glob.glob('%s*.tar.gz' % (pgBackupCopy)))
     # Backup pgdata
-    if 0 == subprocess.call(['/p00/pgsql/12/bin/pg_basebackup', '--pgdata=%s' % (pgBackup), '--format=t', '--gzip', '--compress=4', '--progress', '--verbose']):
+    if 0 == subprocess.call(['%s/bin/pg_basebackup' % (pgBin), '--pgdata=%s' % (pgBackup), '--format=t', '--gzip', '--compress=4', '--progress', '--verbose']):
         pgBackupResult = 'OK'
     # Backup archived wal files
     if 0 == subprocess.call(['tar', '-czf', '%s/archived_wal_%s.tar.gz' % (pgBackup, datetime.now().strftime("%Y_%m_%d_%H_%M")), pgWalArchive]):
