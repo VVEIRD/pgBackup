@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python3
 import os, getpass, sys, subprocess, glob
 from datetime import datetime
 
