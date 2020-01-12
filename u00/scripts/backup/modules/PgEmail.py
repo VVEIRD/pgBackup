@@ -25,7 +25,7 @@ class PgEmail:
         self.emailUser = config['emailUser'] if 'emailUser' in config else self.emailSender
         self.emailPassword = config['emailPassword'] if 'emailPassword' in config else None
         self.emailServer = config['emailSender'] if 'emailSender' in config else None
-        self.useEncryption = config['useEncryption'] if 'useEncryption' in config else False
+        self.useEncryption = (config['useEncryption'].strip().lower() == 'true') if 'useEncryption' in config else False
         self.port = int(config['port']) if 'port' in config else (self.smtpDefault if not self.useEncryption else self.smtpSecure)
         if config != None and 'debug' in config:
             print('=================================================')
