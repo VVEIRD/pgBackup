@@ -1,4 +1,12 @@
 ﻿#!/usr/bin/python3
+#=================================================#
+# PostgreSQL Backup software.                     #
+#                                                 #
+# Author: Roland von Werden                       #
+# Release: 0.1                                    #
+# License: MIT                                    #
+#=================================================#
+
 import os, getpass, sys, subprocess, glob, configparser
 from datetime import datetime
 
@@ -101,7 +109,7 @@ for pgcString in pgcluster:
     for mod in pgModulesPost:
         try:
             modPost = pgModulesPost[mod]
-            modPost.callPost(clusterEntry=clusterEntry, backupLocation=pgBackup, backupResult=pgBackupResult, backupDuration=elapsed.total_seconds(), backupCopyLocation=pgBackupCopy, walArchiveLocation=pgWalArchive, walArchiveBackupResult=pgBackupArchivedWal)
+            modPost.callPost(clusterEntry=clusterEntry, backupLocation=pgBackup, backupResult=pgBackupResult, startTime=startTime, endTime=endTime, backupCopyLocation=pgBackupCopy, walArchiveLocation=pgWalArchive, walArchiveBackupResult=pgBackupArchivedWal)
         except Exception as e:
             print('Error calling module: %s' % str(modPost))
             print(e)
