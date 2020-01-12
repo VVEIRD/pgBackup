@@ -93,7 +93,7 @@ class PgEmail:
         subject = 'Backup on %s for cluster %s: %s' % (platform.node(), clusterEntry[0], backupResult)
         message = MIMEText(messageText)
         message['subject'] = subject
-        message['From'] = self.emailSender
+        message['From'] = self.emailSender.repalce('%h', platform.node())
         message['To'] = self.emailRecipients
         smtp = smtplib.SMTP(host=self.emailServer, port=self.port) if not self.useEncryption else smtplib.SMTP_SSL(host=self.emailServer, port=self.port)
         if self.emailPassword != None:
