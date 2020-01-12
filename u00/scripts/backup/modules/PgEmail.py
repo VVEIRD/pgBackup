@@ -74,7 +74,7 @@ class PgEmail:
                     total_size += os.path.getsize(fp)
         return total_size
     
-    def callPost(self, clusterInformation, backupLocation, backupCopyLocation, backupResult, walArchiveLocation=None, walArchiveBackupResult=None):
+    def callPost(self, clusterEntry, backupLocation, backupResult, backupDuration=0, backupCopyLocation=None, walArchiveLocation=None, walArchiveBackupResult=None):
         messageText  = '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n'
         messageText += '~~             PostgreSQL Backup            ~~\r\n'
         messageText += '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n'
@@ -89,6 +89,7 @@ class PgEmail:
         messageText += 'Result:     %s\r\n' % backupResult
         messageText += 'WAL Backup: %s\r\n' % (walArchiveBackupResult if walArchiveBackupResult != None else 'NA')
         messageText += 'Size:       %s MB\r\n' % str(int(get_backup_size(backupLocation)/(1024*1024)))
+        messageText += 'Duration:   %s s\r\n' % str(backupDuration)
         messageText += '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n'
         subject = 'Backup on %s for cluster %s: %s' % (platform.node(), clusterEntry[0], backupResult)
         message = MIMEText(messageText)

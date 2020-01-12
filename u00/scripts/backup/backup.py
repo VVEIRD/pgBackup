@@ -36,7 +36,8 @@ if pgConfig.has_option('DEFAULT', 'module_paths'):
         sys.path.insert(0,pgModPath.strip())
 
 #Load modules
-pgModules = {}
+pgModulesPre = {}
+pgModulesPost = {}
 if pgConfig.has_option('DEFAULT', 'load_modules'):
     for pgMod in pgConfig['DEFAULT']['load_modules'].split(','):
         print ('Loading module: %s' % pgMod)
@@ -46,7 +47,10 @@ if pgConfig.has_option('DEFAULT', 'load_modules'):
             klass = getattr(mod, pgMod)
             # klass = pg_import('%s.%s' % (pgMod, pgMod))
             pgModule = klass(config=modConfig)
-            pgModules[pgMod] = pgModule;
+            if pgModule.runPreBackup():
+                pgModulesPre[pgMod] = pgModule;
+            if pgModule.runPostBackup():
+                pgModulesPost[pgMod] = pgModule;
         except:
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("Error loading module: %s" % pgMod)
@@ -77,6 +81,8 @@ for pgcString in pgcluster:
     os.environ['PGPORT'] = pgPort
     pgBackupResult = 'ERROR'
     pgBackupArchivedWal = 'ERROR'
+    # TODO
+    # Implement Pre Backup Call
     # Delete local backup
     subprocess.call(['rm'] + glob.glob('%s*.tar.gz' % (pgBackupCopy)))
     # Backup pgdata
@@ -92,6 +98,12 @@ for pgcString in pgcluster:
     subprocess.call(['cp', '-avl'] + glob.glob('%s*.tar.gz' % (pgBackup)) + [pgBackupCopy])
     endTime = datetime.now()
     elapsed = endTime - startTime
+    for mod in pgModulesPost:
+        try:
+            mod.callPost(self, clusterEntry=clusterEntry, backupLocation=pgBackup, backupResult=pgBackupResult, backupDuration=elapsed.total_seconds(), backupCopyLocation=pgBackupCopy, walArchiveLocation=pgWalArchive, walArchiveBackupResult=pgBackupArchivedWal)
+        except Exception as e:
+            print('Error calling module: %s' % str(mod))
+            print(e)
     with open ('%s/logs/pgbackup.log' % (baseDir), 'a') as backup_log:
         backup_log.write('%s:%s:%s:%s:%s\n' % (pgData, startTime.strftime("%Y-%m-%d-%H.%M.%S"),  int(elapsed.total_seconds()), pgBackupResult, pgBackupArchivedWal))
     print('Backup completed: %s in %d seconds' % (pgBackupResult, elapsed.total_seconds()))
