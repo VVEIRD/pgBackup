@@ -1,10 +1,17 @@
 ﻿#!/usr/bin/python3
-import os, getpass, sys, subprocess, glob
+import os, getpass, sys, subprocess, glob, configparser
 from datetime import datetime
 
 if getpass.getuser() != "postgres":
-    print("The backup has to be executed as user postgres, try su - postgres -c '%s'" % (os.path.realpath(__file__)))
+    print("The backup has to be executed as user postgres, try su - postgres -c 'python3 %s'" % (os.path.realpath(__file__)))
     sys.exit(1)
+
+def pg_import(name):
+    components = name.split('.')
+    mod = __import__(components[0])
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
 
 baseDir = os.path.dirname(os.path.realpath(__file__))
 
@@ -17,6 +24,35 @@ print(" == License:   MIT                                         ==")
 print(" == Version:   0.1                                         ==")
 print("==============================================================")
 
+pgConfig = configparser.ConfigParser()
+pgConfig.read_file(open('/etc/pgbackup'))
+
+pgBackupBase = pgConfig['DEFAULT']['backup_base']          if pgConfig.has_option('DEFAULT', 'backup_base') else '/u99/pgbackup'
+pgWalArchiveBase = pgConfig['DEFAULT']['wal_archive_base'] if pgConfig.has_option('DEFAULT', 'wal_archive_base') else '/u99/pgarchive'
+
+# Import all module paths
+if pgConfig.has_option('DEFAULT', 'module_paths'):
+    for pgModPath in pgConfig['DEFAULT']['module_paths'].split(','):
+        sys.path.insert(0,pgModPath.strip())
+
+#Load modules
+pgModules = {}
+if pgConfig.has_option('DEFAULT', 'load_modules'):
+    for pgMod in pgConfig['DEFAULT']['load_modules'].split(','):
+        print ('Loading module: %s' % pgMod)
+        try:
+            modConfig = pgConfig[pgMod] if pgConfig.has_section(pgMod) else []
+            mod = __import__(pgMod, fromlist=[pgMod])
+            klass = getattr(mod, pgMod)
+            # klass = pg_import('%s.%s' % (pgMod, pgMod))
+            pgModule = klass(config=modConfig)
+            pgModules[pgMod] = pgModule;
+        except:
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("Error loading module: %s" % pgMod)
+            print("Please correct the problem and try again")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        
 pgcluster = open('/etc/pgcluster')
 OS_PATH = str(os.environ['PATH'])
 for pgcString in pgcluster:
@@ -33,9 +69,9 @@ for pgcString in pgcluster:
     pgData = clusterEntry[0]
     pgPort = clusterEntry[1]
     pgBin = clusterEntry[2]
-    pgBackup = '/u99/pgbackup/%s/tsm/' % (pgPort)
-    pgBackupCopy = '/u99/pgbackup/%s/local/' % (pgPort)
-    pgWalArchive = '/u99/pgarchive/%s/' % (pgPort)
+    pgBackup = '%s/%s/tsm/'       % (pgBackupBase,     pgPort)
+    pgBackupCopy = '%s/%s/local/' % (pgBackupBase,     pgPort)
+    pgWalArchive = '/%s/%s/'      % (pgWalArchiveBase, pgPort)
     os.environ['PATH'] = OS_PATH + os.pathsep + pgBin + '/bin'
     os.environ['PGDATA'] = pgData
     os.environ['PGPORT'] = pgPort

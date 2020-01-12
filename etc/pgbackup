@@ -1,0 +1,40 @@
+# PG Backup configuration
+#
+# This configuration file contains all necessary parameters for the 
+# additional backup modules to work.
+#
+# Copyright 2019
+# Author    Roland von Werden
+# License   MIT
+
+
+[DEFAULT]
+# This is the path where the modules will be loaded from. These 
+#  paths will be addded to the python path. This can be a comma
+#  seperated list.
+module_paths=/u00/scripts/backup/modules
+# These are the modules that will be loaded from the python path:
+# load_modules=PgEmail
+# Backup base where the backup of all cluster will be stored
+backup_base=/u99/pgbackup
+# Wal archive base, where all wal archvies are stored
+wal_archive_base=/u99/pgarchive
+
+
+# Additional parameters that can be used by these modules
+# Use the Module name for the section name
+
+## PgEmail configuration
+# [PgEmail]
+# emailRecipients=vveird.foss@dummy.com
+# emailSender=vveird.foss@dummy.com
+## If "emailUser" is not set, "emailSender" will be used for authentification
+# emailUser=Dummy
+# emailPassword=Dummy
+# emailServer=dummy@dummy.com
+## Use this parameter to determine which email protocol to use
+# useEncryption=true
+## If the email server uses another port, you can configure 
+##  this here. If it is commented out, the default will be used
+# port=0
+
