@@ -79,15 +79,15 @@ class PgEmail:
         messageText  = '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n'
         messageText += '~~             PostgreSQL Backup            ~~\r\n'
         messageText += '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n'
-        messageText += 'Server:   %s\r\n' % platform.node()
-        messageText += 'Binaries: %s\r\n' % clusterEntry[2]
-        messageText += 'Cluster:  %s\r\n' % clusterEntry[0]
-        messageText += 'Port:     %s\r\n' % clusterEntry[1]
+        messageText += 'Server:     %s\r\n' % platform.node()
+        messageText += 'Binaries:   %s\r\n' % clusterEntry[2]
+        messageText += 'Cluster:    %s\r\n' % clusterEntry[0]
+        messageText += 'Port:       %s\r\n' % clusterEntry[1]
         messageText += '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n'
         messageText += '~~                   Backup                 ~~\r\n'
         messageText += '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n'
-        messageText += 'Start: %s' % startTime.strftime("%Y-%m-%d %H:%M:%S")
-        messageText += 'End:   %s' % endTime.strftime("%Y-%m-%d %H:%M:%S")
+        messageText += 'Start:      %s\r\n' % startTime.strftime("%Y-%m-%d %H:%M:%S")
+        messageText += 'End:        %s\r\n' % endTime.strftime("%Y-%m-%d %H:%M:%S")
         messageText += 'Location:   %s\r\n' % backupLocation
         messageText += 'Result:     %s\r\n' % backupResult
         messageText += 'WAL Backup: %s\r\n' % (walArchiveBackupResult if walArchiveBackupResult != None else 'NA')
