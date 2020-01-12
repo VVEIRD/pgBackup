@@ -24,7 +24,7 @@ class PgEmail:
         self.emailSender = config['emailSender'] if 'emailSender' in config else None
         self.emailUser = config['emailUser'] if 'emailUser' in config else self.emailSender
         self.emailPassword = config['emailPassword'] if 'emailPassword' in config else None
-        self.emailServer = config['emailSender'] if 'emailSender' in config else None
+        self.emailServer = config['emailServer'] if 'emailServer' in config else None
         self.useEncryption = (config['useEncryption'].strip().lower() == 'true') if 'useEncryption' in config else False
         self.port = int(config['port']) if 'port' in config else (self.smtpDefault if not self.useEncryption else self.smtpSecure)
         if config != None and 'debug' in config:
@@ -64,7 +64,7 @@ class PgEmail:
     def runPostBackup(self):
         return True
     
-    def get_backup_size(start_path = '.'):
+    def get_backup_size(self, start_path = '.'):
         total_size = 0
         for dirpath, dirnames, filenames in os.walk(start_path):
             for f in filenames:
@@ -88,14 +88,14 @@ class PgEmail:
         messageText += 'Location:   %s\r\n' % backupLocation
         messageText += 'Result:     %s\r\n' % backupResult
         messageText += 'WAL Backup: %s\r\n' % (walArchiveBackupResult if walArchiveBackupResult != None else 'NA')
-        messageText += 'Size:       %s MB\r\n' % str(int(get_backup_size(backupLocation)/(1024*1024)))
+        messageText += 'Size:       %s MB\r\n' % str(int(self.get_backup_size(backupLocation)/(1024*1024)))
         messageText += 'Duration:   %s s\r\n' % str(backupDuration)
         messageText += '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n'
         subject = 'Backup on %s for cluster %s: %s' % (platform.node(), clusterEntry[0], backupResult)
         message = MIMEText(messageText)
         message['subject'] = subject
-        message['From'] = self.emailSender.repalce('%h', platform.node())
-        message['To'] = self.emailRecipients
+        message['From'] = self.emailSender.replace('%h', platform.node())
+        message['To'] = ','.join(self.emailRecipients)
         smtp = smtplib.SMTP(host=self.emailServer, port=self.port) if not self.useEncryption else smtplib.SMTP_SSL(host=self.emailServer, port=self.port)
         if self.emailPassword != None:
             smtp.login(user=self.emailUser, password=self.emailPassword)

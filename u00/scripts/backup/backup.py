@@ -100,9 +100,10 @@ for pgcString in pgcluster:
     elapsed = endTime - startTime
     for mod in pgModulesPost:
         try:
-            mod.callPost(self, clusterEntry=clusterEntry, backupLocation=pgBackup, backupResult=pgBackupResult, backupDuration=elapsed.total_seconds(), backupCopyLocation=pgBackupCopy, walArchiveLocation=pgWalArchive, walArchiveBackupResult=pgBackupArchivedWal)
+            modPost = pgModulesPost[mod]
+            modPost.callPost(clusterEntry=clusterEntry, backupLocation=pgBackup, backupResult=pgBackupResult, backupDuration=elapsed.total_seconds(), backupCopyLocation=pgBackupCopy, walArchiveLocation=pgWalArchive, walArchiveBackupResult=pgBackupArchivedWal)
         except Exception as e:
-            print('Error calling module: %s' % str(mod))
+            print('Error calling module: %s' % str(modPost))
             print(e)
     with open ('%s/logs/pgbackup.log' % (baseDir), 'a') as backup_log:
         backup_log.write('%s:%s:%s:%s:%s\n' % (pgData, startTime.strftime("%Y-%m-%d-%H.%M.%S"),  int(elapsed.total_seconds()), pgBackupResult, pgBackupArchivedWal))
