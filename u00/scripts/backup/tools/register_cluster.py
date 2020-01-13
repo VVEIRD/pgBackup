@@ -7,12 +7,19 @@
 # License: MIT                                    #
 #=================================================#
 
-import os, getpass, sys, subprocess, glob, configparser, re
+import sys, os, getpass, subprocess, glob, configparser, re
 from datetime import datetime
+
 
 if getpass.getuser() != "root":
     print("This script has to be executed as root, try su - root -c 'python3 %s'" % (os.path.realpath(__file__)))
     sys.exit(1)
+
+auto_add = False
+
+for arg in sys.argv[1:]:
+    if arg.lower() == '-a' or  arg.lower() == '--auto_add':
+        auto_add = True
 
 pgConfigs = []
 pgcluster = ''
@@ -35,9 +42,12 @@ print('')
 
 for cfgFile in pgConfigs:
     print('Add "%s" to "/etc/pgcluster"? (Y/n)' % cfgFile)
-    ch = input()
-    if ch.strip().lower() == 'n':
-        continue
+    if not auto_add:
+        ch = input()
+        if ch.strip().lower() == 'n':
+            continue
+    else:
+        print("Answered Y with automatic mode")
     config_string = ''
     with open(cfgFile, 'r') as f:
         config_string = '[DEFAULT]\n'
@@ -73,9 +83,13 @@ for cfgFile in pgConfigs:
            pgVersion = f.read().strip()
     pgBackup = '1'
     print('Activate backup? (Y/n)')
-    ch = input()
-    if ch.strip().lower() == 'n':
+    if not auto_add:
+        ch = input()
+        if ch.strip().lower() == 'n':
+            pgBackup = '0'
+    else:
         pgBackup = '0'
+        print('Answered N woth automatic mode')
     print('')
     print('')
     print('Please check if the following configuration is correct:')
@@ -89,8 +103,11 @@ for cfgFile in pgConfigs:
     if pgBin == None or pgVersion == None:
         print('Not all configuration could be detected, please add the cluster manually!')
         continue
-    print('Add cluster to /etc/pgcluster? (y/N)')
-    ch = input()
-    if ch.strip().lower() == 'y':
+    if not auto_add:
+        print('Add cluster to /etc/pgcluster? (y/N)')
+        ch = input()
+    else:
+        print('Answered Y woth automatic mode')
+    if ch.strip().lower() == 'y' or auto_add:
         with open('/etc/pgcluster', 'a') as file:
             file.write('%s:%s:%s:%s:1:%s\n' % (pgData, str(port), pgBin, str(pgVersion), str(pgBackup)))
