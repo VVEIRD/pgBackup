@@ -7,7 +7,7 @@
 # License: MIT                                    #
 #=================================================#
 
-import os, getpass, sys, subprocess, glob, configparser
+import os, getpass, sys, subprocess, glob, configparser, re
 from datetime import datetime
 
 if getpass.getuser() != "root":
@@ -40,7 +40,11 @@ for cfgFile in pgConfigs:
         continue
     config_string = ''
     with open(cfgFile, 'r') as f:
-       config_string = '[DEFAULT]\n' + f.read()
+        config_string = '[DEFAULT]\n'
+        for cString in f:
+            if not cString.startswith('#'):
+                cString = re.sub(r'\#.*', '', cString).strip()
+                config_String += cString + '\n'
     pgConfig = configparser.ConfigParser()
     pgConfig.read_string(config_string)
     pgData = os.sep.join(cfgFile.split(os.sep)[0:-1])

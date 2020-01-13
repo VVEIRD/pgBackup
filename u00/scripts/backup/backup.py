@@ -71,8 +71,8 @@ for pgcString in pgcluster:
     startTime = datetime.now()
     clusterEntry = pgcString.split(':')
     # Backup is disabled for this cluster
-    if pgcString.startswith('#') or len(clusterEntry) > 5 and clusterEntry[5].strip() == "0":
-        if not pgcString.startswith('#'):
+    if pgcString.startswith('#') or pgcString.count(':') < 5 or len(clusterEntry) > 5 and clusterEntry[5].strip() == "0":
+        if not pgcString.startswith('#') and pgcString.count(':') < 5:
             print("Skipping backup for cluster %s" % (clusterEntry[0]))
             print("==============================================================")
         continue
