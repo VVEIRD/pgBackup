@@ -28,7 +28,7 @@ wal_archive_base=/u99/pgarchive
 # [PgEmail]
 # emailRecipients=vveird.foss@dummy.com
 ## Senderadress, use the following substitutes:
-##  %h:    Hostname
+##  $h:    Hostname
 # emailSender=vveird.foss_%h_@dummy.com
 ## If "emailUser" is not set, "emailSender" will be used for authentification
 # emailUser=Dummy
