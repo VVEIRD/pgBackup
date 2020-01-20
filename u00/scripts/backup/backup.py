@@ -94,16 +94,17 @@ for pgcString in pgcluster:
     # Delete local backup
     subprocess.call(['rm'] + glob.glob('%s*.tar.gz' % (pgBackupCopy)))
     # Backup pgdata
-    if 0 == subprocess.call(['%s/bin/pg_basebackup' % (pgBin), '--pgdata=%s' % (pgBackup), '--format=t', '--gzip', '--compress=4', '--progress', '--verbose']):
-        pgBackupResult = 'OK'
-    # Backup archived wal files
-    if 0 == subprocess.call(['tar', '-czf', '%s/archived_wal_%s.tar.gz' % (pgBackup, datetime.now().strftime("%Y_%m_%d_%H_%M")), pgWalArchive]):
-        pgBackupArchivedWal = 'OK'
-        # Delete all archived wal files that are older than 2 days
-        subprocess.call(['find', pgWalArchive, '-mtime', '+2', '-exec', 'rm', '{}', ';'])
-    # Hard link generated backups to local copy
-    print('Hard Linking %s to %s' % (pgBackup, pgBackupCopy))
-    subprocess.call(['cp', '-avl'] + glob.glob('%s*.tar.gz' % (pgBackup)) + [pgBackupCopy])
+    with open('%s/logs/%s_backup.log' % (baseDir, pgPort), 'w') as logfile:
+        if 0 == subprocess.call(['%s/bin/pg_basebackup' % (pgBin), '--pgdata=%s' % (pgBackup), '--format=t', '--gzip', '--compress=4', '--progress', '--verbose'], stdout=logfile, stderr=logfile):
+            pgBackupResult = 'OK'
+        # Backup archived wal files
+        if 0 == subprocess.call(['tar', '-czf', '%s/archived_wal_%s.tar.gz' % (pgBackup, datetime.now().strftime("%Y_%m_%d_%H_%M")), pgWalArchive], stdout=logfile, stderr=logfile):
+            pgBackupArchivedWal = 'OK'
+            # Delete all archived wal files that are older than 2 days
+            subprocess.call(['find', pgWalArchive, '-mtime', '+2', '-exec', 'rm', '{}', ';'], stdout=logfile, stderr=logfile)
+        # Hard link generated backups to local copy
+        print('Hard Linking %s to %s' % (pgBackup, pgBackupCopy))
+        subprocess.call(['cp', '-avl'] + glob.glob('%s*.tar.gz' % (pgBackup)) + [pgBackupCopy], stdout=logfile, stderr=logfile)
     endTime = datetime.now()
     elapsed = endTime - startTime
     for mod in pgModulesPost:
